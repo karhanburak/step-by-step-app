@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, globalStyles } from '../styles/theme';
 import { useIsFocused } from '@react-navigation/native';
 
 export default function HistoryScreen({ navigation }) {
     const [tasks, setTasks] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const isFocused = useIsFocused();
 
     useEffect(() => {
@@ -24,6 +25,10 @@ export default function HistoryScreen({ navigation }) {
             console.error(e);
         }
     };
+
+    const filteredTasks = tasks.filter(task =>
+        task.taskTitle.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const renderItem = ({ item }) => {
         const completedCount = item.steps.filter(s => s.completed).length;
@@ -56,15 +61,26 @@ export default function HistoryScreen({ navigation }) {
 
     return (
         <View style={globalStyles.container}>
-            {tasks.length === 0 ? (
+            <TextInput
+                style={styles.searchBar}
+                placeholder="Search your tasks..."
+                placeholderTextColor={colors.textLight}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+            />
+
+            {filteredTasks.length === 0 ? (
                 <View style={styles.emptyState}>
-                    <Text style={styles.emptyText}>No saved tasks yet.</Text>
+                    <Text style={styles.emptyText}>
+                        {searchQuery ? "No matching tasks found." : "No saved tasks yet."}
+                    </Text>
                 </View>
             ) : (
                 <FlatList
-                    data={tasks}
+                    data={filteredTasks}
                     keyExtractor={item => item.id || Math.random().toString()}
                     renderItem={renderItem}
+                    showsVerticalScrollIndicator={false}
                 />
             )}
         </View>
@@ -126,5 +142,16 @@ const styles = StyleSheet.create({
     emptyText: {
         fontSize: 16,
         color: colors.textLight,
+    },
+    searchBar: {
+        backgroundColor: colors.card,
+        padding: 12,
+        paddingLeft: 12,
+        borderRadius: 10,
+        marginBottom: 16,
+        fontSize: 16,
+        color: colors.text,
+        borderWidth: 1,
+        borderColor: colors.border,
     },
 });

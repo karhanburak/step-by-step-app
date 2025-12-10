@@ -30,7 +30,7 @@ export default function App() {
                     <Stack.Screen
                         name="Home"
                         component={HomeScreen}
-                        options={{ title: 'AI Görev Asistanı' }}
+                        options={{ title: 'Step by Step' }}
                     />
                     <Stack.Screen
                         name="Steps"
@@ -40,7 +40,7 @@ export default function App() {
                     <Stack.Screen
                         name="History"
                         component={HistoryScreen}
-                        options={{ title: 'Geçmiş Görevler' }}
+                        options={{ title: 'Past Assignments' }}
                     />
                 </Stack.Navigator>
                 <StatusBar style="auto" />

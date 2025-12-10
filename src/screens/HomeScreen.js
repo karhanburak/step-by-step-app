@@ -26,7 +26,6 @@ export default function HomeScreen({ navigation }) {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
-            aspect: [4, 3],
             quality: 0.5,
             base64: true,
         });
@@ -47,7 +46,6 @@ export default function HomeScreen({ navigation }) {
 
         const result = await ImagePicker.launchCameraAsync({
             allowsEditing: true,
-            aspect: [4, 3],
             quality: 0.5,
             base64: true,
         });
@@ -100,23 +98,25 @@ export default function HomeScreen({ navigation }) {
                         E.g., "Chocolate cake recipe", "Snap a photo of ingredients"
                     </Text>
 
-                    <TextInput
-                        style={styles.textArea}
-                        placeholder="Enter your task here..."
-                        placeholderTextColor={colors.textLight}
-                        multiline
-                        numberOfLines={4}
-                        value={taskInput}
-                        onChangeText={setTaskInput}
-                    />
+                    <View style={styles.inputWrapper}>
+                        <TextInput
+                            style={styles.textArea}
+                            placeholder="Enter your task here..."
+                            placeholderTextColor={colors.textLight}
+                            multiline
+                            numberOfLines={4}
+                            value={taskInput}
+                            onChangeText={setTaskInput}
+                        />
 
-                    <View style={styles.actionRow}>
-                        <TouchableOpacity style={styles.actionButton} onPress={takePhoto}>
-                            <Text style={styles.actionButtonText}>📷 Camera</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.actionButton, { marginLeft: 10 }]} onPress={pickImage}>
-                            <Text style={styles.actionButtonText}>📎 Attach</Text>
-                        </TouchableOpacity>
+                        <View style={styles.inputActions}>
+                            <TouchableOpacity style={styles.iconButton} onPress={takePhoto}>
+                                <Image source={require('../../assets/camera.png')} style={styles.iconImage} />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.iconButton, { marginLeft: 15 }]} onPress={pickImage}>
+                                <Image source={require('../../assets/image.png')} style={styles.iconImage} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
                     {image && (
@@ -170,27 +170,36 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 40,
     },
+    inputWrapper: {
+        backgroundColor: colors.card,
+        borderRadius: 16,
+        padding: 16,
+        minHeight: 180,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: colors.border,
+    },
     textArea: {
-        ...globalStyles.input,
-        height: 120,
+        fontSize: 16,
+        color: colors.text,
         textAlignVertical: 'top',
+        flex: 1,
         marginBottom: 10,
     },
-    actionRow: {
+    inputActions: {
         flexDirection: 'row',
-        marginBottom: 20,
-    },
-    actionButton: {
-        flexDirection: 'row',
+        justifyContent: 'flex-end',
         alignItems: 'center',
-        padding: 8,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 8,
     },
-    actionButtonText: {
-        color: colors.text,
-        fontSize: 14,
-        fontWeight: '500',
+    iconButton: {
+        padding: 3,
+        paddingLeft: 0
+    },
+    iconImage: {
+        width: 24,
+        height: 24,
+        resizeMode: 'contain',
+        tintColor: colors.textLight,
     },
     imagePreviewContainer: {
         position: 'relative',

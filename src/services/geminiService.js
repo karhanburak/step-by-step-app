@@ -32,6 +32,7 @@ export const generateTaskSteps = async (taskDescription, image) => {
           {"id": 2, "text": "Step 2", "completed": false, "note": ""}
         ]
       }
+      IMPORTANT: Do NOT fill the "note" field. It must remain an empty string "".
       Ensure the response is in the same language as the User Request.
     `;
         promptContent.push(basePrompt);

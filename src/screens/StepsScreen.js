@@ -151,6 +151,7 @@ export default function StepsScreen({ route, navigation }) {
                     />
                 )}
                 contentContainerStyle={{ paddingBottom: 100 }}
+                showsVerticalScrollIndicator={false}
             />
 
             <View style={styles.footer}>
