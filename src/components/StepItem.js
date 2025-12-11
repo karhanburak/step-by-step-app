@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Image } from 'react-native';
 import { colors } from '../styles/theme';
 
 export default function StepItem({ step, stepNumber, onToggle, onAddNote, disabled }) {
@@ -38,7 +38,7 @@ export default function StepItem({ step, stepNumber, onToggle, onAddNote, disabl
                     disabled && styles.disabledCheckbox
                 ]}>
                     {step.completed && <Text style={styles.checkmark}>✓</Text>}
-                    {disabled && <Text style={styles.lockIcon}>🔒</Text>}
+                    {disabled && <Image source={require('../../assets/padlock.png')} style={styles.lockIcon} />}
                 </View>
 
                 <Text style={[
@@ -110,7 +110,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     lockIcon: {
-        fontSize: 12,
+        width: 14,
+        height: 14,
+        resizeMode: 'contain',
+        opacity: 0.6,
     },
     text: {
         fontSize: 16,
