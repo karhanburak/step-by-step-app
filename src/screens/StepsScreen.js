@@ -2,16 +2,18 @@ import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
-    FlatList,
+    Image,
     TouchableOpacity,
     StyleSheet,
     Alert,
     ActivityIndicator
 } from 'react-native';
+import DraggableFlatList from 'react-native-draggable-flatlist';
 import { colors, globalStyles } from '../styles/theme';
 import StepItem from '../components/StepItem';
 import NoteModal from '../components/NoteModal';
 import HelpModal from '../components/HelpModal';
+import AddStepModal from '../components/AddStepModal';
 import { getHelpSuggestion } from '../services/geminiService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -22,8 +24,10 @@ export default function StepsScreen({ route, navigation }) {
 
     const [modalVisible, setModalVisible] = useState(false);
     const [helpModalVisible, setHelpModalVisible] = useState(false);
+    const [addStepModalVisible, setAddStepModalVisible] = useState(false);
     const [selectedStepId, setSelectedStepId] = useState(null);
     const [loadingHelp, setLoadingHelp] = useState(false);
+    const [manuallyReordered, setManuallyReordered] = useState(false);
 
     useEffect(() => {
         saveTask();
@@ -89,6 +93,31 @@ export default function StepsScreen({ route, navigation }) {
         ));
     };
 
+    const handleDragEnd = ({ data }) => {
+        // Reassign IDs based on new order
+        const reorderedSteps = data.map((step, index) => ({
+            ...step,
+            id: index + 1
+        }));
+        setSteps(reorderedSteps);
+        setManuallyReordered(true);
+    };
+
+    const handleAddStep = (stepText) => {
+        const newStep = {
+            id: steps.length + 1,
+            text: stepText,
+            completed: false,
+            note: "",
+            isManual: true
+        };
+
+        const updatedSteps = [...steps, newStep];
+        setSteps(updatedSteps);
+        setAddStepModalVisible(false);
+    };
+
+
     const handleGetHelp = () => {
         setHelpModalVisible(true);
     };
@@ -116,7 +145,20 @@ export default function StepsScreen({ route, navigation }) {
                     {
                         text: "Apply New Plan",
                         onPress: () => {
-                            setSteps(suggestion.suggestedSolution);
+                            Alert.alert(
+                                "Confirm Application",
+                                "Are you sure you want to replace your current steps with this new plan? Current progress might be lost.",
+                                [
+                                    { text: "Cancel", style: "cancel" },
+                                    {
+                                        text: "Yes, Apply",
+                                        style: "destructive",
+                                        onPress: () => {
+                                            setSteps(suggestion.suggestedSolution);
+                                        }
+                                    }
+                                ]
+                            );
                         }
                     }
                 ] : [{ text: "OK" }]
@@ -138,19 +180,22 @@ export default function StepsScreen({ route, navigation }) {
 
     return (
         <View style={globalStyles.container}>
-            <FlatList
+            <DraggableFlatList
                 data={steps}
                 keyExtractor={item => item.id.toString()}
-                renderItem={({ item, index }) => (
+                renderItem={({ item, index, drag, isActive }) => (
                     <StepItem
                         step={item}
                         stepNumber={index + 1}
                         onToggle={toggleStep}
                         onAddNote={openNoteModal}
-                        disabled={index > 0 && !steps[index - 1].completed}
+                        disabled={!manuallyReordered && index > 0 && !steps[index - 1].completed}
+                        onLongPress={drag}
+                        isActive={isActive}
                     />
                 )}
-                contentContainerStyle={{ paddingBottom: 100 }}
+                onDragEnd={handleDragEnd}
+                contentContainerStyle={{ paddingBottom: 160 }}
                 showsVerticalScrollIndicator={false}
             />
 
@@ -163,7 +208,15 @@ export default function StepsScreen({ route, navigation }) {
                     {loadingHelp ? (
                         <ActivityIndicator color="#fff" />
                     ) : (
-                        <Text style={styles.helpButtonText}>🧠 Ask for Help</Text>
+                        <View style={styles.helpButtonContainer}>
+                            <Image
+                                source={require('../../assets/brain.png')}
+                                style={styles.helpButtonIcon}
+                            />
+                            <Text style={styles.helpButtonText}>
+                                Ask for Help
+                            </Text>
+                        </View>
                     )}
                 </TouchableOpacity>
             </View>
@@ -181,6 +234,20 @@ export default function StepsScreen({ route, navigation }) {
                 onSubmit={handleHelpSubmit}
                 loading={loadingHelp}
             />
+
+            <AddStepModal
+                visible={addStepModalVisible}
+                onClose={() => setAddStepModalVisible(false)}
+                onSave={handleAddStep}
+                currentStepCount={steps.length}
+            />
+
+            <TouchableOpacity
+                style={styles.fab}
+                onPress={() => setAddStepModalVisible(true)}
+            >
+                <Text style={styles.fabText}>+</Text>
+            </TouchableOpacity>
         </View>
     );
 }
@@ -196,7 +263,7 @@ const styles = StyleSheet.create({
     },
     helpButton: {
         backgroundColor: colors.primary,
-        paddingVertical: 16,
+        paddingVertical: 14,
         borderRadius: 12,
         alignItems: 'center',
         shadowColor: '#000',
@@ -209,5 +276,38 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    helpButtonContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8
+    },
+    helpButtonIcon: {
+        width: 26,
+        height: 26,
+        resizeMode: 'contain',
+        tintColor: '#fff'
+    },
+    fab: {
+        position: 'absolute',
+        bottom: 100,
+        right: 20,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: colors.primary,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 8,
+    },
+    fabText: {
+        color: '#fff',
+        fontSize: 32,
+        fontWeight: 'bold',
+        marginTop: -2,
     },
 });

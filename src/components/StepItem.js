@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Image } from 'react-native';
 import { colors } from '../styles/theme';
 
-export default function StepItem({ step, stepNumber, onToggle, onAddNote, disabled }) {
+export default function StepItem({ step, stepNumber, onToggle, onAddNote, disabled, onLongPress, isActive }) {
     // 0 = Disabled, 1 = Active
     const animVal = useRef(new Animated.Value(disabled ? 0 : 1)).current;
 
@@ -20,11 +20,22 @@ export default function StepItem({ step, stepNumber, onToggle, onAddNote, disabl
     });
 
     return (
-        <Animated.View style={[
-            styles.container,
-            { backgroundColor }, // Animated background
-            step.completed && styles.completedContainer,
-        ]}>
+        <Animated.View
+            style={[
+                styles.container,
+                { backgroundColor }, // Animated background
+                step.completed && styles.completedContainer,
+                isActive && styles.dragging,
+            ]}
+        >
+            <TouchableOpacity
+                style={styles.dragHandle}
+                onLongPress={onLongPress}
+                disabled={disabled}
+            >
+                <Text style={styles.dragHandleText}>⋮⋮</Text>
+            </TouchableOpacity>
+
             <Text style={[styles.stepHeader, disabled && styles.disabledText]}>Step {stepNumber}</Text>
 
             <TouchableOpacity
@@ -110,10 +121,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     lockIcon: {
-        width: 14,
-        height: 14,
+        width: 16,
+        height: 16,
         resizeMode: 'contain',
-        opacity: 0.6,
+        opacity: 0.9,
     },
     text: {
         fontSize: 16,
@@ -162,5 +173,24 @@ const styles = StyleSheet.create({
     disabledCheckbox: {
         borderColor: colors.textLight,
         backgroundColor: '#eee',
+    },
+    dragHandle: {
+        position: 'absolute',
+        left: 8,
+        top: 8,
+        padding: 8,
+    },
+    dragHandleText: {
+        fontSize: 18,
+        color: colors.textLight,
+        letterSpacing: -2,
+    },
+    dragging: {
+        opacity: 0.7,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+        elevation: 12,
     },
 });

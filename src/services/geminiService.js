@@ -83,7 +83,9 @@ export const getHelpSuggestion = async (taskTitle, completedSteps, pendingSteps,
         ]
       }
       If no new list is needed, "suggestedSolution" can be an empty array.
-      Ensure the response is in the same language as the User Issue.
+      Ensure the response (both 'message' and 'suggestedSolution') is strictly in the same language as the "User Issue".
+      IGNORE the language of "Task" and "Steps" when deciding the response language.
+      Example: If "User Issue" is in German, the response MUST be in German.
     `;
 
         const result = await model.generateContent(prompt);

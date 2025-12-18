@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     submitButton: {
-        backgroundColor: colors.secondary,
+        backgroundColor: colors.primary,
         paddingVertical: 12,
         paddingHorizontal: 24,
         borderRadius: 8,
